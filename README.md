@@ -7,4 +7,4 @@ G. Albi, A. Gerbasi, M. Chiesa, G.I. Colombo, R. Bellazzi, and A. Dagliati - acc
 - Patient
 
 ## AIME2023 paper results in ```./CAD_paper_results```:
-- clinical variables considered in ```./clinical_variables_list.txt``` 
+- clinical variables considered in ```./CAD_paper_results/clinical_variables_list.txt``` 
