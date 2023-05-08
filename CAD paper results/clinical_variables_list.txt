@@ -48,7 +48,7 @@ Drugs [Y / N] :
 - NOA
 - Sartans
 - Statins
-- n-3_PUFA
+- n-3 PUFA
 
 Laboratory tests:
 - Leukocytes, 10^-3/μL
@@ -71,15 +71,15 @@ Laboratory tests:
 - # of Monocytes, 10^3/μL 
 - # of Eosinophils, 10^3/μL 
 - # of Basophils, 10^3/μL 
-- Blood_sugar,  mg/dL
-- Uric_acid,  mg/dL
+- Blood sugar,  mg/dL
+- Uric acid,  mg/dL
 - GGT, U/L
-- Total_bilirubin,  mg/dL
+- Total bilirubin,  mg/dL
 - hsTnI, μg/L
 - Triglycerides, mg/dL
-- Total_cholesterol, mg/dL
-- HDL_cholesterol, mg/dL
-- LDL_cholesterol, mg/dL
+- Total cholesterol, mg/dL
+- HDL cholesterol, mg/dL
+- LDL cholesterol, mg/dL
 - CRP, mg/dL
 - hs-CRP, mg/dL
 - HbA1c-IFCC, mmol/mol 
