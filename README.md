@@ -28,7 +28,13 @@ G. Albi, A. Gerbasi, M. Chiesa, G.I. Colombo, R. Bellazzi, and A. Dagliati - acc
 | Cluster method (C): |                      |                   |
 | agglomerative complete-linkage<br>spectral clustering<br>DBSCAN|<br>n° of clusters (N)<br>n° of clusters (N)<br>epsilon<br>minimum samples | <br>[2,3]<br>[2,3]<br>[0.2, 0.3, **0.5**]<br>[**2**, 4]|
 
-- Figure with the highlighted overall results of the grid search. A) Training set 2D projections for each lenses and B) the graph statistics plotted and highlighted for the second step. 
+- Figure with the highlighted **overall results of the grid search**. A) Training set 2D projections for each lenses and B) the graph statistics plotted and highlighted for the second step. 
 ![img1](figures/img1_highlighted.png?raw=true)
 
-- **Table 3**: classifier models trained using a one-vs-rest binary classification task to predict the patient’s membership to each subgroup. For each model we report the hyperparameters tuned, the range and the best score obtained for each subgroup (in bold if the higher for the subgroup).
+- Results from the computational phenotyping. Classifier models trained using a one-vs-rest binary classification task to predict the patient’s membership to each subgroup. For each model we report the hyperparameters tuned, the range and the best score (mean and ± accuracy) obtained for each subgroup (in bold if the higher for the subgroup).
+
+| Model | Hyperparameters and values | α' | β' | γ' | δ' | ε' |
+| ----- | -------------------------- | -- | -- | -- | -- | -- |
+| EN logistic regression | λ_1 = [0.25 0.5 0.75]<br>λ_2 = [0.001 0.01, 0.1, 1, 10] | **0.76±0.08** | **0.93±0.03** | **0.99±0.01** | **0.93±0.02** | **0.96±0.02** |
+| Random forest | maximum tree depth = [1, 3, 5]<br>minimum samples to split  = [2, 5, 10]<br>minimum samples in a leaf = [1, 5]<br>n° of estimators = [100, 200, 300]|  0.60±0.08 | 0.79±0.04 | **0.98±0.01** | 0.88±0.03 | 0.96±0.01 |
+| XGBoost | gamma = [0, 0.1, 0.2, 0.3]<br>learning rate = [0.1, 0.25, 0.5]<br>maximum depth  = [1, 3, 5]<br>n° of estimators = [100, 200, 300]|  0.56±0.08 | 0.89±0.03 | 0.98±0.01 | 0.91±0.03 | **0.96±0.01** |
