@@ -32,7 +32,7 @@ G. Albi, A. Gerbasi, M. Chiesa, G.I. Colombo, R. Bellazzi, and A. Dagliati - acc
 
 ![img1](figures/img1_highlighted.png?raw=true)
 
-- Results from the computational phenotyping. Classifier models trained using a one-vs-rest binary classification task to predict the patient’s membership to each subgroup. For each model we report the hyperparameters tuned, the range and the best score (mean and ± accuracy) obtained for each subgroup (in bold if the higher for the subgroup).
+- Results from the **computational phenotyping**. Classifier models trained using a one-vs-rest binary classification task to predict the patient’s membership to each subgroup. For each model we report the hyperparameters tuned, the range and the best score (mean and ± accuracy) obtained for each subgroup (in bold if the higher for the subgroup).
 
 | Model | Hyperparameters and values | α' | β' | γ' | δ' | ε' |
 | ----- | -------------------------- | -- | -- | -- | -- | -- |
