@@ -9,7 +9,7 @@ G. Albi, A. Gerbasi, M. Chiesa, G.I. Colombo, R. Bellazzi, and A. Dagliati - acc
 ## AIME2023 paper supplementary results in ```./CAD_paper_results```:
 - clinical variables considered in ```./CAD_paper_results/clinical_variables_list.txt``` 
 
-- **Table 1**: results from the first step of the grid search. For each row we report the lens functions, hyperparameters and their values, and the minimum graph entropy obtained for each lens. The score (in bold) indicates the optimal lens resulting from the first step of the grid search.
+- Results from the **first step of the grid search**. For each row we report the lens functions, hyperparameters and their values, and the minimum graph entropy obtained for each lens. The score (in bold) indicates the optimal lens resulting from the first step of the grid search.
 
 | Lens function (f) | Hyperparameters (θ’) | Grid search values | Graph entropy H(g) |   
 | ------------------| -------------------- | ------------------ | ------------------ |
@@ -19,13 +19,14 @@ G. Albi, A. Gerbasi, M. Chiesa, G.I. Colombo, R. Bellazzi, and A. Dagliati - acc
 | UMAP autoencoder  | first hidden layer size<br>n° of hidden layers | [3, 4]<br> [200, 400]     | 0.703            |
 | UMAP encoder      | hidden layers size<br>n° of hidden layers | [3, 5]<br> [100, 200]       | 0.713              |
 
-- **Table 2**: Mapper parameters and their grid search values. Values in bold are chosen according to graph statistics.
+- Results from the **second step of the grid search**. For each row we report the Mapper parameters, their relative hyperparameters and their values. Values in bold are chosen according to graph statistics.
 
 | Mapper parameters θ | Hyperparameters (θ’) | Grid search values |   
 | ------------------- | -------------------- | ------------------ |
 | Resolution (r)      |          -           | [14, 16, **18**, 20, 22]|
 | Gain (g)      |          -           | [0.2, 0.3, **0.5**, 0.6]|
-| Cluster method (C):<br>agglomerative complete-linkage<br>spectral clustering<br>DBSCAN| c<br>n° of clusters (N)<br>n° of clusters (N)<br>epsilon<br>minimum samples | [2,3]
+| Cluster method (C): |                      |                   |
+| agglomerative complete-linkage<br>spectral clustering<br>DBSCAN|<br>n° of clusters (N)<br>n° of clusters (N)<br>epsilon<br>minimum samples | <br>[2,3]<br>[2,3]<br>[0.2, 0.3, **0.5**]<br>[**2**, 4]|
 
 ![img1](figures/img1_highlighted.png?raw=true)
 
