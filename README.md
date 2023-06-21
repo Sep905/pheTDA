@@ -1,6 +1,6 @@
 # A Topological Data Analysis Framework for Computational Phenotyping 
 
-G. Albi, A. Gerbasi, M. Chiesa, G.I. Colombo, R. Bellazzi, and A. Dagliati - accepted at the AIME 2023 conference, June 2023.
+Albi, G., Gerbasi, A., Chiesa, M., Colombo, G.I., Bellazzi, R., Dagliati, A. (2023). A Topological Data Analysis Framework for Computational Phenotyping. In: Juarez, J.M., Marcos, M., Stiglic, G., Tucker, A. (eds) Artificial Intelligence in Medicine. AIME 2023. Lecture Notes in Computer Science(), vol 13897. Springer, Cham. https://doi.org/10.1007/978-3-031-34344-5_38 
 
 ### Requirements
 - ```requirements.txt``` contains the Python requirements for running the package.
