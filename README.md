@@ -26,7 +26,7 @@ python pheTDA/Computational_phenotyping.py --trainingset_path "data/trainingset.
 2) maximize the modularity after community detection
 3) maximize the silhouette coefficient after the communities assigment to the patients.
 
--You need to indicate the seed, the lens and the clustering method. In addition, the path where the dataset is, the path where you would like to have the results and an additional string that indicate which strategy to apply in case of ties during the communities assignment.
+- You need to indicate the seed, the lens and the clustering method. In addition, the path where the dataset is, the path where you would like to have the results and an additional string that indicate which strategy to apply in case of ties during the communities assignment.
 
 ```python
 python pheTDA/TDA_pipeline_optuna.py --rn 203 --lens "UMAP" --clustering_method "DBSCAN" --dataset_path data/ --results_path results/optuna/ --ties_strategy "node size"
