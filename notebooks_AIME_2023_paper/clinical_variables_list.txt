@@ -1,0 +1,86 @@
+Demographic informations:
+- Sex [Male / Female]
+- Age, years
+- Height, cm	
+- Weight, kg
+- BMI, kg/m2
+- Physical activity frequency [No / Low / Medium / High]
+- Systolic blood pressure, mmHg 
+- Diastolic blood pressure, mmHg 
+- Heart rate, bpm
+- Abdominal circumference, cm
+- Pelvis circumference, cm
+- Oxygen saturation, %
+- Smoking habits [Never, Yes, Ex]
+- Years as a smoker, years
+- Menopause/andropause [Y / N]
+- Family history of cardiovascular disease [Y / N]
+- Family history of cerebrovascular disease [Y / N]
+
+Diagnosis [Y / N] :
+- Anaemia
+- Chronic kidney failure
+- Diabetes mellitus
+- Hypercholesterolemia
+- Hypertension
+- Peripheral artery disease
+- Thrombophilia
+
+Symptoms [Y / N] : 
+- Angina pectoris
+- Arrhythmias
+- Atypical chest pain
+- Non-cardiac chest pain
+
+Drugs [Y / N] :
+- ACE inhibitors
+- ASA
+- Anti-cholesterolemics
+- Antihypertensives
+- Anxiolytic/Antidepressant
+- Beta-blockers
+- Calcium antagonists
+- Clopidogrel
+- Diuretics
+- Ezetimibe
+- Hypoglycaemics
+- Insulin
+- NOA
+- Sartans
+- Statins
+- n-3 PUFA
+
+Laboratory tests:
+- Leukocytes, 10^-3/μL
+- Erythrocytes, 10^-6/μL
+- Haemoglobin, g/dL
+- Haematocrit, %
+- MCV, fL 
+- MCH, pg 
+- MCHC, g/dL
+- RDW, %
+- Platelets, 10^3/μL 
+- MPV, fL 
+- % of Neutrophils
+- % of Lymphocytes
+- % of Monocytes
+- % of Eosinophils
+- % of Basophils
+- # of Neutrophils, 10^3/μL 
+- # of Lymphocytes, 10^3/μL 
+- # of Monocytes, 10^3/μL 
+- # of Eosinophils, 10^3/μL 
+- # of Basophils, 10^3/μL 
+- Blood sugar,  mg/dL
+- Uric acid,  mg/dL
+- GGT, U/L
+- Total bilirubin,  mg/dL
+- hsTnI, μg/L
+- Triglycerides, mg/dL
+- Total cholesterol, mg/dL
+- HDL cholesterol, mg/dL
+- LDL cholesterol, mg/dL
+- CRP, mg/dL
+- hs-CRP, mg/dL
+- HbA1c-IFCC, mmol/mol 
+- HbA1c-DCCT, %
