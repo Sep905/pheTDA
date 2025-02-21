@@ -7,7 +7,7 @@ Albi, G., Gerbasi, A., Chiesa, M., Colombo, G.I., Bellazzi, R., Dagliati, A. (20
 ### Requirements
 - ```requirements.txt``` contains the Python requirements for running the package.
 - A tabular dataset made of N rows (patients or sample), M features (clinical features), a class **Y** that define the initial clinical phenotype and an id column **PATIENT_ID** defining the samples id.
-- Note that pheTDA leverages the KeplerMapper python package TDA Mapper implementation.
+- Note that pheTDA leverages [KeplerMapper python package](https://kepler-mapper.scikit-tda.org/en/latest/) for the TDA Mapper implementation.
 
 ### Example: run the pheTDA TDA pipeline
 ```python
@@ -21,7 +21,10 @@ python pheTDA/Computational_phenotyping.py --trainingset_path "data/trainingset.
 
 ## Edit: run the pheTDA pipeline while using Optuna python package to optimize the hyperparameters selection. 
 
-- We use Pareto optimization to: 1) minimize the fraction of isolated nodes, 2) maximize the modularity after community detection, 3) maximize the silhouette coefficient after the communities assigment to the patients.
+- We use Pareto optimization to:
+1) minimize the fraction of isolated nodes;
+2) maximize the modularity after community detection
+3) maximize the silhouette coefficient after the communities assigment to the patients.
 
 -You need to indicate the seed, the lens and the clustering method. In addition, the path where the dataset is, the path where you would like to have the results and an additional string that indicate which strategy to apply in case of ties during the communities assignment.
 
