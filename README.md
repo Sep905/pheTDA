@@ -20,12 +20,12 @@ python pheTDA/TDA_Mapper.py --dataset_path "../data/dataset.xlsx" --binary_class
 python pheTDA/Computational_phenotyping.py --trainingset_path "data/trainingset.npy" --testset_path "data/testgset.npy" --binary_class "Y" '--id_paz' "PATIENT_ID" --distance_matrix_path "data/trainingset_distance_matrix.npy" --n_dimension_projection 2 --seed 203  --projection_lens umap.UMAP(n_components =2 , random_state= 203, n_neighbors= 50, min_dist=0.9) --resolution 18 --gain 0.5 --colormap "coolwarm" --community_detection_algorithm "Greedy modularity" --list_of_classifiers ["logistic regression","random forest","XGBoost"] --cv_split  5
 ``` 
 
-## :dart: Edit: run the pheTDA pipeline while using Optuna python package to optimize the hyperparameters selection. 
+### :dart: Edit: run the pheTDA pipeline while using [Optuna python package](https://optuna.readthedocs.io/en/stable/) to optimize the hyperparameters selection. 
 
-- We use Pareto optimization to:
-1) minimize the fraction of isolated nodes;
-2) maximize the modularity after community detection
-3) maximize the silhouette coefficient after the communities assigment to the patients.
+- We use [Pareto optimization](https://en.wikipedia.org/wiki/Multi-objective_optimization) to:
+1) **minimize** the fraction of isolated nodes resulting from the TDA Mapper algorithm;
+2) **maximize** the modularity of the partition obtained after the community detection;
+3) **maximize** the silhouette coefficient after the communities assigment to the patients.
 
 - You need to indicate the seed, the lens and the clustering method. In addition, the path where the dataset is, the path where you would like to have the results and an additional string that indicate which strategy to apply in case of ties during the communities assignment.
 
