@@ -22,7 +22,7 @@
 
 - Figure with the highlighted **overall results of the grid search**. A) Training set 2D projections for each lenses and B) the graph statistics plotted and highlighted for the second step. 
 
-![img1](figures/img1_highlighted.png?raw=true)
+![img1](../figures/img1_highlighted.png?raw=true)
 
 - Results from the **computational phenotyping**. Classifier models trained using a one-vs-rest binary classification task to predict the patient’s membership to each subgroup. For each model we report the hyperparameters tuned, the range and the best score (mean and ± accuracy) obtained for each subgroup (in bold if the higher for the subgroup).
 
