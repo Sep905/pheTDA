@@ -12,7 +12,7 @@ Albi, G., Gerbasi, A., Chiesa, M., Colombo, G.I., Bellazzi, R., Dagliati, A. (20
 
 #### Example: run the pheTDA TDA pipeline
 ```python
-python pheTDA/TDA_Mapper.py --dataset_path "../data/dataset.xlsx" --binary_class "Y" --patient_id "PATIENT_ID" --seed 203 --test_set_split_proportion 0.3 --continue_features ["Age","BMI"] --list_lens_functions ["PCA","tSNE","UMAP"] --n_dimension_projection 2 --perplexities list( np.arange(15,55,10)) --learning_rates list( np.arange(300,1000,300)) --n_iters list(np.array([1500])) --min_dists list(np.array([0.25,0.5,0.75,0.9])) --n_neighbors list( np.array([5,10,25,50,120,150,200])) --resolution  list( np.array([14, 16, 18, 20, 22])) --gain list( np.array([0.2, 0.3, 0.5, 0.6]))
+python pheTDA/TDA_Mapper.py --dataset_path "../data/dataset.xlsx" --binary_class "Y" --patient_id "PATIENT_ID" --seed 203 --test_set_split_proportion 0.3 --continue_features ["Age","BMI"] --list_lens_functions ["PCA","tSNE","UMAP"] --n_dimension_projection 2 --perplexities list( np.arange(15,55,10)) --learning_rates list( np.arange(300,1000,300)) --n_iters list(np.array([1500])) --min_dists list(np.array([0.25,0.5,0.75,0.9])) --n_neighbors list( np.array([5,10,25,50,120,150,200])) --resolution  list( np.array([14, 16, 18, 20, 22])) --gain list( np.array([0.2, 0.3, 0.5]))
 ``` 
 
 #### Example: run the pheTDA computational phenotyping
