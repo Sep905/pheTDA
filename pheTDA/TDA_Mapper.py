@@ -1011,7 +1011,7 @@ def main(args):
     flag_remove_duplicate_nodes = args.flag_remove_duplicate_nodes
 
     # read the dataset
-    dataset = pd.read_csv(dataset_path)
+    dataset = pd.read_excel(dataset_path)
 
     # trainint/test split
     # dataset_splitting(dataset, test_set_split_proportion, random_seed, dataset[initial_class])
