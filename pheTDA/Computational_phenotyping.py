@@ -785,7 +785,7 @@ def main(args):
     list_of_classifiers = args.list_of_classifiers
 
     # read the dataset
-    dataset = pd.read_csv(dataset_path)
+    dataset = pd.read_excel(dataset_path)
     categorical_features = list(set(dataset.columns).difference(set(continue_features)).difference(set(binary_features)).difference(set([initial_class])).difference(set([patient_id])))
     dataset_experiment_features = dataset.loc[:, ~dataset.columns.isin([patient_id])]
 
