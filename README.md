@@ -12,12 +12,12 @@ Albi, G., Gerbasi, A., Chiesa, M., Colombo, G.I., Bellazzi, R., Dagliati, A. (20
 
 #### Example: run the pheTDA TDA pipeline
 ```python
-python pheTDA/TDA_Mapper.py --dataset_path "../data/dataset.xlsx" --binary_class "Y" --patient_id "PATIENT_ID" --seed 203 --test_set_split_proportion 0.3 --continue_features ["Age","BMI"] --list_lens_functions ["PCA","tSNE","UMAP"] --n_dimension_projection 2 --perplexities list( np.arange(15,55,10)) --learning_rates list( np.arange(300,1000,300)) --n_iters list(np.array([1500])) --min_dists list(np.array([0.25,0.5,0.75,0.9])) --n_neighbors list( np.array([5,10,25,50,120,150,200])) --resolution  list( np.array([14, 16, 18, 20, 22])) --gain list( np.array([0.2, 0.3, 0.5]))
+python pheTDA/TDA_Mapper.py --dataset_path "../data/dataset.xlsx" --initial_class "Y" --make_the_class_binary False --control_value 0 --patient_id "PATIENT_ID" --seed 203 --continue_features "['Age','BMI']" --list_lens_functions "['PCA','tSNE']" --n_dimension_projection 2 --perplexities "[5,15,25,35,45]" --learning_rates "[100,300,600,900]" --n_iters "[1500]" --min_dists "[0.25,0.5,0.75,0.9]" --n_neighbors "[5,10,25,50,75]" --resolution "[14,16,18,20,22]" --gain "[0.2,0.3,0.5]" --cluster_method "['DBSCAN','agglomerative_average','agglomerative_single','agglomerative_complete','spectral_clustering','kmedoids']"
 ``` 
 
 #### Example: run the pheTDA computational phenotyping
 ```python
-python pheTDA/Computational_phenotyping.py --trainingset_path "data/trainingset.npy" --testset_path "data/testgset.npy" --binary_class "Y" '--id_paz' "PATIENT_ID" --distance_matrix_path "data/trainingset_distance_matrix.npy" --n_dimension_projection 2 --seed 203  --projection_lens umap.UMAP(n_components =2 , random_state= 203, n_neighbors= 50, min_dist=0.9) --resolution 18 --gain 0.5 --colormap "coolwarm" --community_detection_algorithm "Greedy modularity" --list_of_classifiers ["logistic regression","random forest","XGBoost"] --cv_split  5
+python pheTDA/Computational_phenotyping.py --dataset_path "data/dataset.xlsx" --initial_class "Y" --patient_id "PATIENT_ID" --distance_matrix_path "data/distance_matrix.npy" --continue_features "['Age','BMI']" binary_features "['myocardial.infarction']" --n_dimension_projection 2 --seed 203  --projection_lens_path "results/lens_final_model.pkl" --resolution 22 --gain 0.5 --cluster_method "results/cluster_method_final_model.pkl" --colormap "coolwarm" --community_detection_algorithm "Louvain" --list_of_classifiers ["logistic regression","random forest"] --cv_split  5 --flag_remove_duplicate_nodes True
 ``` 
 
 ### Edit: run the pheTDA pipeline while using [Optuna python package](https://optuna.readthedocs.io/en/stable/) to optimize the hyperparameters selection. 
