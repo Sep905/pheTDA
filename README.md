@@ -12,7 +12,7 @@ Albi, G., Gerbasi, A., Chiesa, M., Colombo, G.I., Bellazzi, R., Dagliati, A. (20
 
 #### Example: run the pheTDA TDA pipeline
 ```python
-python pheTDA/TDA_Mapper.py --dataset_path "../data/dataset.xlsx" --initial_class "Y" --make_the_class_binary False --control_value 0 --patient_id "PATIENT_ID" --seed 203 --continue_features "['Age','BMI']" --list_lens_functions "['PCA','tSNE']" --n_dimension_projection 2 --perplexities "[5,15,25,35,45]" --learning_rates "[100,300,600,900]" --n_iters "[1500]" --min_dists "[0.25,0.5,0.75,0.9]" --n_neighbors "[5,10,25,50,75]" --resolution "[14,16,18,20,22]" --gain "[0.2,0.3,0.5]" --cluster_method "['DBSCAN','agglomerative_average','agglomerative_single','agglomerative_complete','spectral_clustering','kmedoids']"
+python pheTDA/TDA_Mapper.py --dataset_path "./data/dataset.xlsx" --initial_class "Y" --make_the_class_binary False --control_value 0 --patient_id "PATIENT_ID" --seed 203 --continue_features "['Age','BMI']" --list_lens_functions "['PCA','tSNE']" --n_dimension_projection 2 --perplexities "[5,15,25,35,45]" --learning_rates "[100,300,600,900]" --n_iters "[1500]" --min_dists "[0.25,0.5,0.75,0.9]" --n_neighbors "[5,10,25,50,75]" --resolution "[14,16,18,20,22]" --gain "[0.2,0.3,0.5]" --cluster_method "['DBSCAN','agglomerative_average','agglomerative_single','agglomerative_complete','spectral_clustering','kmedoids']"
 ``` 
 
 #### Example: run the pheTDA computational phenotyping
