@@ -14,9 +14,7 @@ Albi, G., Gerbasi, A., Chiesa, M., Colombo, G.I., Bellazzi, R., Dagliati, A. (20
 
 #### To run the pipeline, check ```/pheTDA/```:
 - ```/pheTDA_notebook.ipynb``` is the updated notebook with the overall pipeline
-- ```/TDA_pipeline_optuna.py``` to run the pipeline with using  [Optuna python package](https://optuna.readthedocs.io/en/stable/) to optimize the hyperparameters selection
-  
-- We use [Pareto optimization](https://en.wikipedia.org/wiki/Multi-objective_optimization) to:
+- ```/TDA_pipeline_optuna.py``` to run the pipeline with using  [Optuna python package](https://optuna.readthedocs.io/en/stable/) to optimize the hyperparameters selection. We use [Pareto optimization](https://en.wikipedia.org/wiki/Multi-objective_optimization) to:
 1) **minimize** the fraction of isolated nodes resulting from the TDA Mapper algorithm;
 2) **maximize** the modularity of the partition obtained after the community detection;
 3) **maximize** the silhouette coefficient after the communities assigment to the patients.
