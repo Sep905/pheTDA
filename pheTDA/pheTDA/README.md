@@ -21,7 +21,3 @@ pheTDA/
 - specify dataset path, the name of the initial class (and its type), the continue, categorical and binary variables, and the entropy direction (minimize or maximize) and run the pipeline as:
 
 ```python pipeline_run.py --dataset_path ./data/dataset.csv --initial_class Y --initial_class_type "categorical" --seed 125 --results_path ./results --continue_features "[]" --categorical_features "[]" --binary_features "[]" --entropy minimize```
-
-### Optuna is used in a multi-objective optimization for:
-1) maximize/minimize the graph entropy (weighted node entropy)
-2) maximize the silhouette coefficient after the communities assigment to the patients.
