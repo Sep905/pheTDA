@@ -2,9 +2,9 @@
 
 ![img1](figures/framework.png?raw=true)
 
-#### To explore the results of the original work from AIME 2023, check ```/notebooks_AIME_2023_paper/```
+To explore the results of the original work from AIME 2023, check ```/notebooks_AIME_2023_paper/```
 
-#### To use [Optuna python package](https://optuna.readthedocs.io/en/stable/) for hyperparameters optimization, check ```/pheTDA/```. In particular, [Pareto optimization](https://en.wikipedia.org/wiki/Multi-objective_optimization) is used to:
+To use [Optuna python package](https://optuna.readthedocs.io/en/stable/) for hyperparameters optimization, check ```/pheTDA/```. In particular, [Pareto optimization](https://en.wikipedia.org/wiki/Multi-objective_optimization) is used to:
 1) **maximize|minimize** the graph entropy (weighted node entropy)
 2) **maximize** the silhouette coefficient after the communities assigment to the patients.
 
