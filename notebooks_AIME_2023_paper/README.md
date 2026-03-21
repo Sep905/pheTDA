@@ -1,3 +1,12 @@
+```
+notebooks_AIME_2023_paper/                
+├── Preprocessing.ipynb                   -> dataset splitting and CV risk scores computation
+├── TDA_Mapper.ipynb                      -> grid search for the TDA Mapper hyperparameters
+├── Computational_phenotyping.ipynb       -> computational phenotyping with predictve models
+└── Clustering_comparison.ipynb           -> TDA Mapper comparison with clustering methods
+```
+
+
 # Paper supplementary results:
 
 - Results from the **first step of the grid search**. For each row we report the lens functions, hyperparameters and their values, and the minimum graph entropy obtained for each lens. The score (in bold) indicates the optimal lens resulting from the first step of the grid search.
