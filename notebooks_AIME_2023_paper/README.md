@@ -1,5 +1,4 @@
 # Paper supplementary results:
-- clinical variables considered in ```./notebooks_AIME_2023_paper/clinical_variables_list.txt``` 
 
 - Results from the **first step of the grid search**. For each row we report the lens functions, hyperparameters and their values, and the minimum graph entropy obtained for each lens. The score (in bold) indicates the optimal lens resulting from the first step of the grid search.
 
