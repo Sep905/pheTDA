@@ -12,15 +12,6 @@ Albi, G., Gerbasi, A., Chiesa, M., Colombo, G.I., Bellazzi, R., Dagliati, A. (20
 
 #### To explore the results of the original work from AIME 2023, check ```/notebooks_AIME_2023_paper/```
 
-#### To run the pipeline, check ```/pheTDA/```:
-- ```/pheTDA_notebook.ipynb``` is the updated notebook with the overall pipeline
-- ```/TDA_pipeline_optuna.py``` to run the pipeline with using  [Optuna python package](https://optuna.readthedocs.io/en/stable/) to optimize the hyperparameters selection. We use [Pareto optimization](https://en.wikipedia.org/wiki/Multi-objective_optimization) to:
-1) **minimize** the fraction of isolated nodes resulting from the TDA Mapper algorithm;
-2) **maximize** the modularity of the partition obtained after the community detection;
-3) **maximize** the silhouette coefficient after the communities assigment to the patients.
-
-```python
-python pheTDA/TDA_pipeline_optuna.py --rn 203 --lens "UMAP" --clustering_method "DBSCAN" --dataset_path data/ --results_path results/optuna/ --ties_strategy "node size"
-``` 
-
-- You can visualize the optuna results, and choose the configuration of hyperparameters. These can be used to perform the computational phenotyping as in ```Computational_phenotyping.py```
+#### To use [Optuna python package](https://optuna.readthedocs.io/en/stable/) for hyperparameters optimization, check ```/pheTDA/```. In particular, [Pareto optimization](https://en.wikipedia.org/wiki/Multi-objective_optimization) is used to:
+1) **maximize|minimize** the graph entropy (weighted node entropy)
+2) **maximize** the silhouette coefficient after the communities assigment to the patients.
