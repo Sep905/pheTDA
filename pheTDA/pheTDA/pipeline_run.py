@@ -56,6 +56,9 @@ def main(args):
     dataset = pd.read_csv(args.dataset_path)
     dataset['ID'] = range(len(dataset)) 
 
+    if not(os.path.exists(args.results_path)):
+        os.mkdir(args.results_path )
+
     if not(os.path.exists(args.results_path + "/" + str(args.seed) )):
         os.mkdir(args.results_path + "/" + str(args.seed) )
 
