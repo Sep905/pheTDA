@@ -1,1 +1,0 @@
-python pipeline_run.py --dataset_path ./data/dataset.csv --initial_class Y --initial_class_type "categorical" --seed 125 --results_path ./results --continue_features "[]" --categorical_features "[]" --binary_features "[]" --entropy minimize
