@@ -17,7 +17,15 @@ pheTDA/
 ```
 
 ### To run the pheTDA pipeline with optuna:
-- create a subfolder ```./data``` to place the dataset as a .csv file
+- create a subfolder ```./data``` to place the dataset as a .csv file;
 - specify dataset path, the name of the initial class (and its type), the continue, categorical and binary variables, and the entropy direction (minimize or maximize) and run the pipeline as:
 
 ```python pipeline_run.py --dataset_path ./data/dataset.csv --initial_class Y --initial_class_type "categorical" --seed 125 --results_path ./results --continue_features "[]" --categorical_features "[]" --binary_features "[]" --entropy minimize```
+
+Lens function included in the optimization framework:
+- PCA
+- MDS
+- Isomap
+- t-SNE
+- UMAP
+- Autoencoder
