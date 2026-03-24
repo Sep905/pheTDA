@@ -2,7 +2,7 @@ import optuna
 from pipeline_objects import Lens_function, Covering, Partitioning
 
 import networkx as nx
-from utils import entropy_count, spread_measure
+from utils import entropy_count
 from sklearn.metrics import silhouette_score
 import pickle
 import numpy as np
