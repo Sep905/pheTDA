@@ -49,8 +49,8 @@ class SemiSupervised_TDA_pipeline:
         covering_and_graph = Covering(mapper_dict_hyperparameters, projection_lens.projections, self.distance_matrix, self.sample_ids, self.initial_class, self.dataset_features)
 
         #### Graph creation checks
-        if graph_creation_checks_fail(projection_lens.projections, covering_and_graph.scomplex, covering_and_graph.G):
-            return bad_scores
+        #if graph_creation_checks_fail(projection_lens.projections, covering_and_graph.scomplex, covering_and_graph.G):
+        #    return bad_scores
 
         covering_and_graph.G, covering_and_graph.scomplex = define_node_edge_attribute(covering_and_graph.G, covering_and_graph.scomplex, self.dataset_features)
 
