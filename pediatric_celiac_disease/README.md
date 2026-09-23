@@ -1,3 +1,5 @@
+
+# A New Computational Phenotyping Framework for the Clinical Characterization of Pediatric Celiac Disease
 <p align="center">
 <img src="graphical_abstract.PNG" alt="Graphical Abstract" width="720">
 </p>
@@ -18,7 +20,6 @@ pediatric_celiac_disease/
 ```
 
 ## 📚 Citation
-
 ```bibtex
 @article{albi2026phetdaceliac,
 title = {A New Computational Phenotyping Framework for the Clinical Characterization of Pediatric Celiac Disease},
