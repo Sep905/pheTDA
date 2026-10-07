@@ -1,310 +1,296 @@
-import pandas as pd
-import math
-import numpy as np
+"""Utilities for annotating and stratifying Mapper graphs."""
+
+from collections import Counter
+
+import kmapper as km
 import networkx as nx
-from sklearn.neighbors import NearestNeighbors
-from scipy.interpolate import interp1d
-import statistics
-from collections import Counter, defaultdict
-from scipy.stats import gaussian_kde
-import sys
+import numpy as np
+import pandas as pd
+
+VALID_CLASS_TYPES = {"categorical", "continuous"}
 
 
-def entropy_count(scomplex, G, initial_class, initial_class_type):
+def _labels_for_measure(values, value_type):
+    """Return categorical labels used by the entropy and spread measures.
+
+    Continuous values are binned using one set of Freedman-Diaconis edges
+    computed from the complete outcome vector. Using shared edges makes node
+    entropies comparable and gives spread the same interpretation as in the
+    categorical case.
     """
-    Compute graph entropy from a KeplerMapper simplicial complex,
-    and attach node-wise weighted entropy as a 'entropy' attribute
-    on the corresponding NetworkX graph.
+    if value_type not in VALID_CLASS_TYPES:
+        raise ValueError("phenotype type must be either 'categorical' or 'continuous'")
 
-    Parameters
-    ----------
-    scomplex : dict
-        KeplerMapper simplicial complex (output of mapper.map).
-    initial_class : pandas.Series
-        Phenotype / label for each original data point (index aligned with scomplex nodes).
+    values = np.asarray(values)
+    if values.ndim != 1:
+        values = values.reshape(-1)
+    if values.size == 0:
+        raise ValueError("phenotype cannot be empty")
+    if pd.isna(values).any():
+        raise ValueError("phenotype cannot contain missing values")
 
-    Returns
-    -------
-    graph_entropy : float
-        Size-weighted mean of node entropies (as before).
-    node_entropy : dict
-        Mapping node_name -> size-weighted node entropy.
-    G : nx.Graph
-        NetworkX graph with node attribute 'entropy' set.
+    if value_type == "categorical":
+        return values
+
+    try:
+        numeric_values = values.astype(float)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("continuous phenotype values must be numeric") from exc
+    if not np.isfinite(numeric_values).all():
+        raise ValueError("continuous phenotype values must be finite")
+    if np.all(numeric_values == numeric_values[0]):
+        return np.zeros(numeric_values.size, dtype=int)
+
+    bin_edges = np.histogram_bin_edges(numeric_values, bins="fd")
+    if bin_edges.size <= 2:
+        return np.zeros(numeric_values.size, dtype=int)
+    return np.digitize(numeric_values, bin_edges[1:-1], right=False)
+
+
+def _node_memberships(G):
+    memberships = []
+    for node in G.nodes:
+        members = G.nodes[node].get("membership")
+        if members is None:
+            raise ValueError(f"Mapper node {node!r} has no 'membership' attribute")
+        members = np.asarray(members, dtype=int)
+        G.nodes[node]["size"] = int(members.size)
+        memberships.append(members)
+    return memberships
+
+
+def _validate_memberships(memberships, n_samples):
+    for members in memberships:
+        if members.size and (members.min() < 0 or members.max() >= n_samples):
+            raise IndexError("a Mapper membership index is outside the phenotype")
+
+
+def entropy_count(
+    scomplex,
+    phenotype,
+    phenotype_type,
+    G=None,
+    node_attribute="entropy",
+):
+    """Compute the membership-weighted mean Shannon entropy of Mapper nodes.
+
+    For a continuous outcome, values are first assigned to global
+    Freedman-Diaconis bins. The same bin edges are therefore used for every
+    node. The returned graph has per-node (unweighted) entropy values in bits.
+
+    Mapper memberships can overlap. Consequently, the graph-level weighting
+    counts each node membership, which is intentional for a node-level metric.
     """
-    initial_class_ = initial_class.copy(True)
+    labels = _labels_for_measure(phenotype, phenotype_type)
+    if G is None:
+        G = km.adapter.to_nx(scomplex)
 
-    # For convenience, get node names consistently with scomplex["nodes"]
-    # Here we assume G nodes are named with the same keys as scomplex["nodes"].
-    node_names = list(scomplex["nodes"].keys())
+    memberships = _node_memberships(G)
+    _validate_memberships(memberships, labels.size)
 
-    entropy_node = {}
+    weighted_entropy = 0.0
+    total_memberships = 0
+    for node, members in zip(G.nodes, memberships):
+        counts = np.asarray(list(Counter(labels[members]).values()), dtype=float)
+        if counts.size == 0:
+            node_entropy = 0.0
+        else:
+            probabilities = counts / counts.sum()
+            node_entropy = float(-np.sum(probabilities * np.log2(probabilities)))
 
-    if initial_class_type == "categorical":
+        G.nodes[node][node_attribute] = node_entropy
+        weighted_entropy += members.size * node_entropy
+        total_memberships += members.size
 
-        label_values = list(initial_class_.value_counts().index)
-        label_values.sort()
-
-        # Per-node entropy, as in the original function
-        for j, node_name in enumerate(node_names):
-            # samples in this node
-            idx = scomplex["nodes"][node_name]
-            data_bin = initial_class_.iloc[idx]
-
-            dimCluster = len(data_bin)
-
-            dimData_dict = {}
-            for label in label_values:
-                dimData_dict[label] = np.sum(data_bin == label)
-
-            H_node = 0.0
-            if dimCluster > 0:
-                for _, v in dimData_dict.items():
-                    if v != 0:
-                        p = v / dimCluster
-                        H_node += -(p) * math.log2(p)
-
-            entropy_node[node_name] = (dimCluster, H_node)
-            G.nodes[node_name]["entropy"] = H_node
-        
-
-    elif initial_class_type == "continuous":
-        # Get the actual array of continuous values
-        label_values = np.asarray(initial_class_.values)
-        
-        # Create GLOBAL bins so every node is measured on the exact same scale.
-        # 'auto' uses a robust statistical estimator to determine the ideal number of buckets 
-        # based on your entire dataset's spread.
-        global_bins = np.histogram_bin_edges(label_values, bins='auto')
-
-        for j, node_name in enumerate(node_names):
-            idx = scomplex["nodes"][node_name]
-            values_in_node = label_values[idx]
-            dimCluster = len(values_in_node)
-
-            if dimCluster == 0:
-                H_node = 0.0
-            else:
-                # Count how many node samples fall into each global bucket
-                counts, _ = np.histogram(values_in_node, bins=global_bins)
-                
-                # Filter out empty buckets to avoid taking log2(0)
-                non_zero_counts = counts[counts > 0]
-                
-                # Compute standard discrete Shannon Entropy
-                probabilities = non_zero_counts / dimCluster
-                H_node = -np.sum(probabilities * np.log2(probabilities))
-
-            entropy_node[node_name] = (dimCluster, H_node)
-            G.nodes[node_name]["entropy"] = H_node
-
-    else:
-        print("Insert a valid type of initial class [categorical/continuous]")
-        sys.exit()
-
-    sumBinEntropies = 0
-    numberData = 0
-    for node_name, (dimCluster, H_node) in entropy_node.items():
-        sumBinEntropies += dimCluster * H_node
-        numberData += dimCluster
-    graph_entropy = sumBinEntropies / numberData if numberData > 0 else float("nan")
-
-    return graph_entropy, G
+    graph_entropy = (
+        weighted_entropy / total_memberships if total_memberships else float("nan")
+    )
+    return float(graph_entropy), G
 
 
-def estimate_dbscan_params(data, smooth_n=1000):
+def spread_measure(G, initial_class, initial_class_type):
+    """Measure how widely outcome strata are distributed over a Mapper graph.
+
+    For each categorical label (or continuous-value bin), the measure is the
+    expected pairwise shortest-path distance between its Mapper memberships.
+    Hop distances are divided by graph diameter, making the result comparable
+    across graphs and bounded to ``[0, 1]``. Label-specific values are averaged
+    using their frequencies in the original sample.
     """
-    Estimate optimal DBSCAN parameters (`eps` and `minPts`) using the elbow method and log rule.
-    
-    Parameters:
-    - datadf: (pandas DataFrame) dataset of interest
-    - smooth_n: Number of interpolation points for smoother elbow curve (default: 1000)
-    
-    Returns:
-    - eps_estimated: float, estimated `eps` value
-    - minPts: int, estimated `minPts` value
-    """
+    labels = _labels_for_measure(initial_class, initial_class_type)
+    node_list = list(G.nodes)
+    if not node_list:
+        return float("nan"), G
+    if not nx.is_connected(G):
+        raise ValueError("spread_measure requires a connected graph")
 
-    n_samples = data.shape[0]
-    minPts = int(np.round(np.log(n_samples)))
+    memberships = _node_memberships(G)
+    _validate_memberships(memberships, labels.size)
 
-    # Use k+1 because kNN includes the point itself
-    nbrs = NearestNeighbors(n_neighbors=minPts + 1).fit(data)
-    distances, _ = nbrs.kneighbors(data)
+    node_index = {node: index for index, node in enumerate(node_list)}
+    distances = np.zeros((len(node_list), len(node_list)), dtype=float)
+    for source, lengths in nx.all_pairs_shortest_path_length(G):
+        source_index = node_index[source]
+        for target, distance in lengths.items():
+            distances[source_index, node_index[target]] = distance
 
-    # Get the k-th nearest distance (excluding self-distance)
-    k_distances = np.sort(distances[:, minPts])
+    diameter = float(distances.max())
+    if diameter > 0:
+        distances /= diameter
 
-    # Interpolate to smooth the curve
-    x_vals = np.linspace(0, len(k_distances) - 1, smooth_n)
-    interpolator = interp1d(np.arange(len(k_distances)), k_distances, kind='linear')
-    y_vals = interpolator(x_vals)
+    # Preserve first-seen ordering so mixed, non-sortable categorical labels
+    # are supported as well.
+    unique_labels = list(dict.fromkeys(labels.tolist()))
+    label_to_row = {label: row for row, label in enumerate(unique_labels)}
+    counts_by_node = np.zeros((len(unique_labels), len(node_list)), dtype=float)
+    for column, members in enumerate(memberships):
+        for label, count in Counter(labels[members]).items():
+            counts_by_node[label_to_row[label], column] = count
 
-    # First and second derivative for elbow detection
-    dy = np.gradient(y_vals, x_vals)
-    d2y = np.gradient(dy, x_vals)
+    label_spread = {}
+    for label, row in label_to_row.items():
+        counts = counts_by_node[row]
+        denominator = counts.sum() ** 2
+        label_spread[label] = (
+            float(counts @ distances @ counts / denominator)
+            if denominator > 0
+            else float("nan")
+        )
 
-    # Find the elbow as the maximum second derivative
-    elbow_idx = np.argmax(np.abs(d2y))
-    eps_estimated = y_vals[elbow_idx]
+    original_counts = Counter(labels)
+    valid_labels = [
+        label for label in unique_labels if np.isfinite(label_spread[label])
+    ]
+    total_weight = sum(original_counts[label] for label in valid_labels)
+    graph_spread = (
+        sum(original_counts[label] * label_spread[label] for label in valid_labels)
+        / total_weight
+        if total_weight
+        else float("nan")
+    )
 
-    return eps_estimated, minPts
+    for node, members in zip(node_list, memberships):
+        node_counts = Counter(labels[members])
+        node_total = sum(node_counts.values())
+        node_spread = (
+            sum(count * label_spread[label] for label, count in node_counts.items())
+            / node_total
+            if node_total
+            else float("nan")
+        )
+        G.nodes[node]["spread"] = float(node_spread)
+
+    return float(graph_spread), G
+
 
 def set_node_community(G, communities):
-    """
-    Function that assing to each node in the networkx graph the community as attribute
-    INPUT:
-    - G:           (networkx graph)  networkx graph obtained from the Mapper simplicial complex
-    - communities: (list of int)    list of integers, containing the community assigned to each node in the graph G
-    """
-    for c, nodes_community_c in enumerate(communities):
-        for node_c in nodes_community_c:
-            G.nodes[node_c]['community'] = c + 1
-            
+    """Attach all one-based community identifiers to graph nodes."""
+    nx.set_node_attributes(G, {node: [] for node in G.nodes}, "communities")
+    for community_id, nodes in enumerate(communities, start=1):
+        for node in nodes:
+            G.nodes[node]["communities"].append(community_id)
+    for node in G.nodes:
+        memberships = G.nodes[node]["communities"]
+        G.nodes[node]["community"] = memberships[0] if memberships else None
+
+
 def set_edge_community(G):
-    """
-    Function which searches for edges within the community and adds them.
-    INPUT:
-    - G:           (networkx graph)  networkx graph obtained from the Mapper simplicial complex        
-    """
-    for v, w, in G.edges:
-        if G.nodes[v]['community'] == G.nodes[w]['community']:
-            # Internal edge marked with the community (number)
-            G.edges[v, w]['community'] = G.nodes[v]['community']
-        else:
-            # External edge marked with a 0
-            G.edges[v, w]['community'] = 0
+    """Attach communities shared by both endpoints, or zero if there are none."""
+    for source, target in G.edges:
+        shared = sorted(
+            set(G.nodes[source]["communities"]) & set(G.nodes[target]["communities"])
+        )
+        G.edges[source, target]["communities"] = shared
+        G.edges[source, target]["community"] = shared[0] if shared else 0
 
 
-def associate_sample_to_communities(
-    G, 
-    scomplex, 
-    communities, 
-    dataset_ids, 
-    strategy
-):
-    """
-    Fully parallelized version: ALL strategies use precomputed data.
-    
-    Args:
-        G: NetworkX graph with edge weights = similarity
-        scomplex: dict with "nodes" mapping node → list of dataset_ids (patients)
-        communities: list of sets of node IDs
-        dataset_ids: list of patient IDs
-        strategy: 'size', 'centrality_ensemble'
-    
-    Returns:
-        new_dataset_ids: DataFrame with 'dataset_id', 'communities'
-    """
+def _normalise_scores(scores):
+    values = np.asarray(list(scores.values()), dtype=float)
+    minimum = values.min()
+    span = values.max() - minimum
+    if span == 0:
+        return {node: 0.0 for node in scores}
+    return {node: (value - minimum) / span for node, value in scores.items()}
+
+
+def associate_sample_to_communities(G, scomplex, communities, dataset_ids, strategy):
+    """Resolve overlapping Mapper memberships into one community per sample."""
+    valid_strategies = {"new_community_for_ties", "size", "centrality_ensemble"}
+    if strategy not in valid_strategies:
+        raise ValueError(f"unknown tie resolution strategy: {strategy!r}")
+
+    node_to_communities = {node: [] for node in G.nodes}
+    for community_id, nodes in enumerate(communities, start=1):
+        for node in nodes:
+            node_to_communities[node].append(community_id)
+    next_community_id = len(communities) + 1
+    tie_map = {}
+
+    centralities = None
+    if strategy == "centrality_ensemble":
+        centralities = [
+            _normalise_scores(dict(G.degree())),
+            _normalise_scores(nx.laplacian_centrality(G)),
+            _normalise_scores(nx.betweenness_centrality(G)),
+            _normalise_scores(nx.pagerank(G)),
+        ]
 
     assigned_communities = []
-    
-    # ========== PRECOMPUTE ALL DATA (PARALLELIZATION FOUNDATION) ==========
-    
-    # Map node -> community id (1..C)
-    node_to_comm = {}
-    for comm_id, nodes_community_c in enumerate(communities, start=1):
-        for node_c in nodes_community_c:
-            node_to_comm[node_c] = comm_id
-    
-    # Community → list of nodes (for ALL strategies)
-    comm_to_nodes = defaultdict(list)
-    for node, comm_id in node_to_comm.items():
-        comm_to_nodes[comm_id].append(node)
-    
-    # Precompute centralities once (MOVED BEFORE comm_stats)
-    deg = dict(G.degree())
-    laplacian = nx.laplacian_centrality(G)
-    betweenness = nx.betweenness_centrality(G)
-    pagerank = nx.pagerank(G)
-    
-    # Precompute community statistics (for size/centrality strategies)
-    comm_stats = {}
-    for comm_id, nodes in comm_to_nodes.items():
-        # Size: sum of node sizes
-        total_size = sum(len(scomplex['nodes'][node]) for node in nodes)
-        
-        # Centrality ensemble: average of all 4 metrics
-        avg_centrality = statistics.mean([
-            statistics.mean(deg[node] for node in nodes),
-            statistics.mean(laplacian[node] for node in nodes),
-            statistics.mean(betweenness[node] for node in nodes),
-            statistics.mean(pagerank[node] for node in nodes)
-        ])
-        
-        comm_stats[comm_id] = {
-            'size': total_size,
-            'centrality': avg_centrality,
-            'nodes': nodes
+    for sample_id in dataset_ids:
+        sample_nodes = {
+            node: node_to_communities[node]
+            for node, members in scomplex["nodes"].items()
+            if sample_id in members
         }
-    
-    # Tie group cache (for new_community_for_ties)
-    tie_map = {}
-    next_new_comm_id = max(node_to_comm.values()) + 1 if node_to_comm else 1
-    
-    # ========== PROCESS EACH PATIENT (PARALLEL) ==========
-    for patient in dataset_ids:
-        # Find all nodes containing the patient
-        patient_nodes = {
-            node: node_to_comm[node]
-            for node, values in scomplex["nodes"].items() 
-            if patient in values
-        }
-        
-        if not patient_nodes:
+        if not sample_nodes:
             assigned_communities.append(None)
             continue
-        
-        # Count community frequencies
-        freq = Counter(patient_nodes.values())
-        freq = dict(sorted(freq.items(), key=lambda x: x[1], reverse=True))
-        candidate_communities = list(freq.keys())
-        candidate_frequencies = list(freq.values())
-        
-        # CASE 1: only one community (all strategies)
-        if len(candidate_communities) == 1:
-            assigned_communities.append(candidate_communities[0])
-            continue
-        
-        # CASE 2: clear majority (all strategies)
-        if candidate_frequencies[0] > candidate_frequencies[1]:
-            assigned_communities.append(candidate_communities[0])
-            continue
-        
-        # ========== TIED CASE: ALL STRATEGIES PARALLELIZED ==========
-        
-        # Identify tied communities
-        max_frequency = max(candidate_frequencies)
-        tied_communities = [
-            candidate_communities[i] 
-            for i, freq_val in enumerate(candidate_frequencies) 
-            if freq_val == max_frequency
-        ]
-        
-        # ========== PARALLEL STRATEGIES (ALL USE PRECOMPUTED DATA) ==========
-            
-        if strategy == "size":
-            # Use precomputed community sizes
-            best_comm = max(tied_communities, key=lambda c: comm_stats[c]['size'])
-            
-        elif strategy == "centrality_ensemble":
-            # Use precomputed centrality scores
-            best_comm = max(
-                tied_communities, 
-                key=lambda c: comm_stats[c]['centrality']
-            )
-        
-        else:
-            # Fallback for "majority" or unspecified: take the first tied community
-            best_comm = tied_communities[0]
-        
-        assigned_communities.append(best_comm)
-    
-    # Create output DataFrame
-    new_dataset_ids = pd.DataFrame({
-        'dataset_id': dataset_ids,
-        'communities': assigned_communities,
 
-    })
-    
-    return new_dataset_ids
+        frequencies = Counter(
+            community_id
+            for node_communities in sample_nodes.values()
+            for community_id in node_communities
+        )
+        maximum_frequency = max(frequencies.values())
+        tied_communities = [
+            community_id
+            for community_id, frequency in frequencies.items()
+            if frequency == maximum_frequency
+        ]
+        if len(tied_communities) == 1:
+            assigned_communities.append(tied_communities[0])
+            continue
+
+        if strategy == "new_community_for_ties":
+            tie_key = frozenset(tied_communities)
+            if tie_key not in tie_map:
+                tie_map[tie_key] = next_community_id
+                next_community_id += 1
+            assigned_communities.append(tie_map[tie_key])
+            continue
+
+        community_nodes = {
+            community_id: [
+                node
+                for node, node_communities in sample_nodes.items()
+                if community_id in node_communities
+            ]
+            for community_id in tied_communities
+        }
+        scores = []
+        for community_id in tied_communities:
+            nodes = community_nodes[community_id]
+            if strategy == "size":
+                score = sum(len(scomplex["nodes"][node]) for node in nodes)
+            else:
+                score = sum(
+                    np.mean([centrality[node] for centrality in centralities])
+                    for node in nodes
+                )
+            scores.append(score)
+
+        assigned_communities.append(tied_communities[int(np.argmax(scores))])
+
+    return pd.DataFrame(
+        {"dataset_id": list(dataset_ids), "communities": assigned_communities}
+    )

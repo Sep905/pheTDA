@@ -1,92 +1,98 @@
-import gower as gw
-import pandas as pd
-from sklearn.metrics.pairwise import cosine_distances, pairwise_distances, euclidean_distances
-from sklearn import preprocessing
+"""Dataset preprocessing and mixed-type distance computation."""
+
+from pathlib import Path
+
+import gower
 import numpy as np
+import pandas as pd
+from sklearn.metrics import pairwise_distances
+from sklearn.preprocessing import StandardScaler
 
-def distance_matrix_computation(sample_id, Y_class, dataset, continue_features, categorical_features, binary_features, results_path):
-    """
-    Function for distance matrix calculation, according to the features' type.
-    Distance matrix will be saved at ./distance_matrix.npy
-    INPUT:
-        - sample_id:            (pandas Series) dataset's column indicating the samples IDs
-        - Y_class:              (pandas Series) dataset's column indicating the initial class
-        - dataset:              (pandas DataFrame) dataset for which calculate the distance
-        - continue_features:    (list) list containing the dataset's numerical features
-        - categorical_features: (list) list containing the categorical features (>2 levels)
-        - binary_features:      (list) list containing the binary features (2 levels)
-    OUTPUT:
-        - distance_matrix:      (numpy ndarray) features distance matrix
-    """
-    
-    
-    # filter the dataset in order to delete the IDs and the output columns
-    dataset_features = dataset.loc[:, ~dataset.columns.isin([sample_id.name, Y_class.name])]
 
-    # determine which types of features are present
-    has_categorical = len(categorical_features) > 0
-    has_binary = len(binary_features) > 0
-    has_continuous = len(continue_features) > 0
-    
-    # Case 1: only categorical and/or binary variables -> Jaccard distance
-    if (has_categorical or has_binary) and not has_continuous:
-        print("only categorical and/or binary variables -> Jaccard distance")
-        
-        if has_binary:
-            df_binary = dataset_features[binary_features]
-            df_binary_dummies = pd.get_dummies(df_binary.astype(str), drop_first=True, dtype=int)
-        else:
-            df_binary_dummies = pd.DataFrame()
-        
-        if has_categorical:
-            df_categorical = dataset_features[categorical_features]
-            df_categorical_dummies = pd.get_dummies(df_categorical.astype(str), drop_first=False, dtype=int)
-        else:
-            df_categorical_dummies = pd.DataFrame()
-        
-        df_encoded = pd.concat([df_binary_dummies, df_categorical_dummies], axis=1)
-        distance_matrix = pairwise_distances(df_encoded.values, metric="jaccard")
-        dataset_to_return = df_encoded
-    
-    # Case 2: only numerical variables -> Euclidean distance (as per your code call)
-    elif has_continuous and not has_categorical and not has_binary:
-        print("only numerical variables -> euclidean distance")
-        
-        X = dataset_features[continue_features].values
-        min_max_scaler = preprocessing.StandardScaler()
-        X_scaled = min_max_scaler.fit_transform(X)
-        dataset_scaled = pd.DataFrame(X_scaled, columns=continue_features)
-        
-        distance_matrix = euclidean_distances(dataset_scaled, dataset_scaled)
-        dataset_to_return = dataset_scaled
-    
-    # Case 3: mixed features -> Gower distance
+def _validate_feature_columns(dataset, feature_groups):
+    columns = [column for group in feature_groups for column in group]
+    duplicates = [column for column in set(columns) if columns.count(column) > 1]
+    if duplicates:
+        raise ValueError(f"feature columns occur in multiple groups: {duplicates}")
+    missing = [column for column in columns if column not in dataset.columns]
+    if missing:
+        raise ValueError(f"feature columns are absent from the dataset: {missing}")
+    if not columns:
+        raise ValueError("at least one feature column must be supplied")
+    return columns
+
+
+def _encoded_projection_data(dataset, continuous_features, categorical_features):
+    frames = []
+    if continuous_features:
+        scaled = StandardScaler().fit_transform(dataset[continuous_features])
+        frames.append(pd.DataFrame(scaled, columns=continuous_features))
+    if categorical_features:
+        frames.append(
+            pd.get_dummies(
+                dataset[categorical_features].astype(str),
+                columns=categorical_features,
+                drop_first=False,
+                dtype=float,
+            ).reset_index(drop=True)
+        )
+    return pd.concat(frames, axis=1)
+
+
+def distance_matrix_computation(
+    dataset,
+    continuous_features,
+    categorical_features,
+    binary_features,
+    results_path,
+):
+    """Compute a distance matrix appropriate to the supplied feature types.
+
+    Standardized Euclidean distance is used for continuous-only data, Jaccard
+    distance for categorical-only data, and Gower distance for mixed data.
+    Input features must not contain missing values. The returned feature frame
+    is numeric and suitable for all lens functions.
+    """
+    feature_columns = _validate_feature_columns(
+        dataset, [continuous_features, categorical_features, binary_features]
+    )
+    categorical_and_binary = [*categorical_features, *binary_features]
+    features = dataset.loc[:, feature_columns].copy()
+    columns_with_missing_values = features.columns[features.isna().any()].tolist()
+    if columns_with_missing_values:
+        raise ValueError(
+            "input features contain missing values in columns: "
+            f"{columns_with_missing_values}"
+        )
+    projection_data = _encoded_projection_data(
+        features, continuous_features, categorical_and_binary
+    )
+
+    has_continuous = bool(continuous_features)
+    has_categorical = bool(categorical_and_binary)
+    if has_continuous and not has_categorical:
+        distance_matrix = pairwise_distances(
+            projection_data.to_numpy(), metric="euclidean"
+        )
+    elif has_categorical and not has_continuous:
+        distance_matrix = pairwise_distances(
+            projection_data.to_numpy(dtype=bool), metric="jaccard"
+        )
     else:
-        print("mixed features (categorical/binary and numerical) -> Gower distance")
-        
-        if has_binary:
-            df_binary = dataset_features[binary_features]
-            df_binary_dummies = pd.get_dummies(df_binary.astype(str), drop_first=True, dtype=int)
-        else:
-            df_binary_dummies = pd.DataFrame()
-        
-        if has_categorical:
-            df_categorical = dataset_features[categorical_features]
-            df_categorical_dummies = pd.get_dummies(df_categorical.astype(str), drop_first=False, dtype=int)
-        else:
-            df_categorical_dummies = pd.DataFrame()
-        
-        df_continuous = dataset_features[continue_features].astype(float)
-        df_mixed = pd.concat([df_continuous, df_binary_dummies, df_categorical_dummies], axis=1)
-        
-        cat_features = ([False] * len(continue_features) + 
-                        [True] * (len(df_binary_dummies.columns) + len(df_categorical_dummies.columns)))
-        
-        distance_matrix = gw.gower_matrix(df_mixed, cat_features=cat_features)
-        dataset_to_return = df_mixed
-    
-    # save the distance matrix as .npy file
-    np.save(results_path + "/distance_matrix.npy", distance_matrix, allow_pickle=False)
-    dataset_to_return.to_csv(results_path + "/dataset_preprocessed.csv", index=False)
-    
-    return distance_matrix, dataset_to_return
+        gower_data = features[[*continuous_features, *categorical_and_binary]]
+        categorical_mask = [False] * len(continuous_features) + [True] * len(
+            categorical_and_binary
+        )
+        distance_matrix = gower.gower_matrix(gower_data, cat_features=categorical_mask)
+
+    # Remove small floating-point asymmetries/diagonal residuals so the matrix
+    # satisfies the precomputed-distance requirements of downstream estimators.
+    distance_matrix = np.asarray(distance_matrix, dtype=float)
+    distance_matrix = (distance_matrix + distance_matrix.T) / 2
+    np.fill_diagonal(distance_matrix, 0.0)
+
+    results_directory = Path(results_path)
+    results_directory.mkdir(parents=True, exist_ok=True)
+    np.save(results_directory / "distance_matrix.npy", distance_matrix)
+    projection_data.to_csv(results_directory / "dataset_preprocessed.csv", index=False)
+    return distance_matrix, projection_data
