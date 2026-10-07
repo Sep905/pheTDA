@@ -1,20 +1,3 @@
-# pheTDA
-
-pheTDA is a semi-supervised topological data analysis pipeline for discovering
-patient stratifications. It constructs a Mapper graph from mixed clinical
-features, detects graph communities with Louvain, and uses phenotype-aware graph
-entropy together with community silhouette to guide a multi-objective Optuna
-search.
-
-The pipeline can use:
-
-- an initial phenotype;
-- a final phenotype; or
-- both initial and final phenotypes.
-
-Phenotypes guide hyperparameter selection but must not also be included among
-the input features used to construct the Mapper graph.
-
 ## 📁Repository organization
 
 ```text
