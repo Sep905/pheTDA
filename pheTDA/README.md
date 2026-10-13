@@ -14,6 +14,7 @@ pheTDA/
 |-- utils/
 |   |-- prepro.py                # Feature preprocessing and distance matrix
 |   `-- graph_utils.py           # Entropy, graph annotation, and tie resolution
+|-- synthea_covid_experiment/    # Experiments with Synthea Covid19 dataset
 |-- tests/                       # Pytest behavioral tests
 |-- requirements.txt             # Runtime dependencies
 |-- requirements-dev.txt         # Pytest and Ruff development dependencies
