@@ -38,7 +38,7 @@ $$
 
 Thus, higher hypervolume and positive $\Delta HV$ favor TPE. Hypervolume is comparable across strategies and budgets within a scenario, but it is not an absolute clinical quantity and should not be compared directly between different phenotype scenarios.
 
-![Pareto hypervolume](analysis_plots_new/pareto_hypervolume.png)
+![Pareto hypervolume](analysis_plots/pareto_hypervolume.png)
 
 **Descriptive conclusion.** Across 28 matched scenario/budget comparisons, TPE has higher hypervolume in **24**, random search in **4**, with **0** ties. The median TPE-minus-random hypervolume difference is **0.0596**.
 The largest observed advantage for TPE is **0.3018** for **Continuous initial phenotype only**, budget **100**; the most negative difference is **-0.1131** for **Final phenotype only**, budget **50**.
@@ -107,7 +107,7 @@ $$
 
 2D scatter/staircase.
 
-![Final phenotype only Pareto front](analysis_plots_new/pareto_front__final_only.png)
+![Final phenotype only Pareto front](analysis_plots/pareto_front__final_only.png)
 
 **Descriptive conclusion.** Across 4 matched budgets, TPE has higher hypervolume in 3, random search in 1, and they tie in 0. Use the plotted front to see whether this difference comes from uniformly better solutions or from different trade-off regions.
 
@@ -115,7 +115,7 @@ $$
 
 2D scatter/staircase.
 
-![Categorical initial phenotype only Pareto front](analysis_plots_new/pareto_front__categorical_initial_only.png)
+![Categorical initial phenotype only Pareto front](analysis_plots/pareto_front__categorical_initial_only.png)
 
 **Descriptive conclusion.** Across 4 matched budgets, TPE has higher hypervolume in 4, random search in 0, and they tie in 0. Use the plotted front to see whether this difference comes from uniformly better solutions or from different trade-off regions.
 
@@ -123,7 +123,7 @@ $$
 
 parallel coordinates.
 
-![Categorical initial + final alignment Pareto front](analysis_plots_new/pareto_front__categorical_both_alignment.png)
+![Categorical initial + final alignment Pareto front](analysis_plots/pareto_front__categorical_both_alignment.png)
 
 **Descriptive conclusion.** Across 4 matched budgets, TPE has higher hypervolume in 3, random search in 1, and they tie in 0. Use the plotted front to see whether this difference comes from uniformly better solutions or from different trade-off regions.
 
@@ -131,7 +131,7 @@ parallel coordinates.
 
 parallel coordinates.
 
-![Categorical initial mixing + final separation Pareto front](analysis_plots_new/pareto_front__categorical_initial_mixing_final_separation.png)
+![Categorical initial mixing + final separation Pareto front](analysis_plots/pareto_front__categorical_initial_mixing_final_separation.png)
 
 **Descriptive conclusion.** Across 4 matched budgets, TPE has higher hypervolume in 3, random search in 1, and they tie in 0. Use the plotted front to see whether this difference comes from uniformly better solutions or from different trade-off regions.
 
@@ -139,7 +139,7 @@ parallel coordinates.
 
 2D scatter/staircase.
 
-![Continuous initial phenotype only Pareto front](analysis_plots_new/pareto_front__continuous_initial_only.png)
+![Continuous initial phenotype only Pareto front](analysis_plots/pareto_front__continuous_initial_only.png)
 
 **Descriptive conclusion.** Across 4 matched budgets, TPE has higher hypervolume in 4, random search in 0, and they tie in 0. Use the plotted front to see whether this difference comes from uniformly better solutions or from different trade-off regions.
 
@@ -147,7 +147,7 @@ parallel coordinates.
 
 parallel coordinates.
 
-![Continuous initial + final alignment Pareto front](analysis_plots_new/pareto_front__continuous_both_alignment.png)
+![Continuous initial + final alignment Pareto front](analysis_plots/pareto_front__continuous_both_alignment.png)
 
 **Descriptive conclusion.** Across 4 matched budgets, TPE has higher hypervolume in 3, random search in 1, and they tie in 0. Use the plotted front to see whether this difference comes from uniformly better solutions or from different trade-off regions.
 
@@ -155,7 +155,7 @@ parallel coordinates.
 
 parallel coordinates.
 
-![Continuous initial mixing + final separation Pareto front](analysis_plots_new/pareto_front__continuous_initial_mixing_final_separation.png)
+![Continuous initial mixing + final separation Pareto front](analysis_plots/pareto_front__continuous_initial_mixing_final_separation.png)
 
 **Descriptive conclusion.** Across 4 matched budgets, TPE has higher hypervolume in 4, random search in 0, and they tie in 0. Use the plotted front to see whether this difference comes from uniformly better solutions or from different trade-off regions.
 
@@ -177,7 +177,7 @@ $$
 
 $\rho<1$ means TPE was faster, $\rho>1$ means random search was faster, and $\rho=1$ means equal recorded runtime.
 
-![Runtime versus trial budget](analysis_plots_new/runtime_by_trials.png)
+![Runtime versus trial budget](analysis_plots/runtime_by_trials.png)
 
 **Descriptive conclusion.** TPE is faster in **20 of 32** matched comparisons, random search is faster in **12**, and **0** are equal within numerical tolerance. The overall median TPE/random runtime ratio is **0.811** (pheTDA median ratio **0.738**; unsupervised-baseline median ratio **1.930**).
 Runtime differences reflect which hyperparameters each search sampled as well as sampler overhead; they should be interpreted together with Pareto quality rather than as a stand-alone measure of performance.
@@ -229,7 +229,7 @@ $$
 
 The color scale is centered at zero and is calculated independently for each objective because entropy and silhouette have different numerical scales. These are raw objective differences, not standardized effect sizes. The selected pheTDA solution minimizes its normalized distance to the study-specific ideal point, so it is a compromise rather than the independently best trial for every objective.
 
-![Direction-adjusted selected objectives](analysis_plots_new/selected_objective_advantage.png)
+![Direction-adjusted selected objectives](analysis_plots/selected_objective_advantage.png)
 
 **Descriptive conclusion.**
 - **Silhouette:** TPE is better in **18 of 32** matched cells, random search in **10**, with **4** ties. The largest TPE advantage is **0.4172** for Continuous initial mixing + final separation at budget 100; the most negative value is **-0.2498** for Categorical initial + final alignment at budget 250.
